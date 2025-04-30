@@ -45,7 +45,7 @@
   "license": "MIT",
   "main": "./lib/printer",
   "dependencies": {
-    "nan": "^2.18.0",
+    "nan": "^2.22.2",
     "prebuild-install": "^7.1.1"
   },
   "types": "types/index.d.ts"
