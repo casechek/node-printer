@@ -1,20 +1,20 @@
 {
-  "name": "@thiagoelg/node-printer",
+  "name": "casechek/node-printer",
   "description": "Node.js printer bindings",
   "version": "0.6.2",
-  "homepage": "https://github.com/thiagoelg/node-printer",
+  "homepage": "https://github.com/casechek/node-printer",
   "author": {
     "name": "Ion Lupascu",
     "url": "http://program-support.co.uk/",
     "email": "ionlupascu@gmail.com"
   },
   "contributors": [
-    "Thiago Lugli <thiagoelg@gmail.com>",
-    "Eko Eryanto <ekoeryanto@gmail.com>"
+    "Stephen Carlin <stephen@casechek.com>",
+    "Steven Lehn <steven.lehn@casechek.com>"
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/thiagoelg/node-printer.git"
+    "url": "git://github.com/casechek/node-printer.git"
   },
   "devDependencies": {
     "nodeunit": "^0.11.3",
