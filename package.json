@@ -1,5 +1,5 @@
 {
-  "name": "casechek/node-printer",
+  "name": "@casechek/node-printer",
   "description": "Node.js printer bindings",
   "version": "0.6.2",
   "homepage": "https://github.com/casechek/node-printer",
@@ -39,7 +39,7 @@
   "binary": {
     "module_name": "node_printer",
     "module_path": "./lib/",
-    "host": "https://github.com/thiagoelg/node-printer/releases/download/",
+    "host": "https://github.com/casechek/node-printer/releases/download/",
     "remote_path": "v{version}"
   },
   "license": "MIT",
