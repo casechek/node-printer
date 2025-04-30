@@ -4,6 +4,8 @@ Native bind printers on POSIX and Windows OS from Node.js, electron and node-web
 
 [![npm version](https://badge.fury.io/js/@thiagoelg%2Fnode-printer.svg)](https://www.npmjs.com/package/@thiagoelg/node-printer) [![Prebuild Binaries and Publish](https://github.com/thiagoelg/node-printer/actions/workflows/prebuild-main.yml/badge.svg)](https://github.com/thiagoelg/node-printer/actions/workflows/prebuild-main.yml)
 
+> Now compatible with Node.js 20+ with improved native bindings and updated dependencies
+
 > It just works with Node 12 because of @thiagoelg in his [PR](https://github.com/tojocky/node-printer/pull/261)
 
 > Prebuild and CI integration courtesy of @ekoeryanto in his [FORK](https://github.com/ekoeryanto/node-printer)
@@ -13,6 +15,7 @@ If you have a problem, ask question to [![Gitter](https://badges.gitter.im/Join%
 ___
 ### **Below is the original README**
 ___
+
 ### Reason:
 
 I was involved in a project where I need to print from Node.JS. This is the reason why I created this project and I want to share my code with others.
@@ -22,7 +25,7 @@ I was involved in a project where I need to print from Node.JS. This is the reas
 
 * no dependecies;
 * native method wrappers from Windows  and POSIX (which uses [CUPS 1.4/MAC OS X 10.6](http://cups.org/)) APIs;
-* compatible with node v0.8.x, 0.9.x and v0.11.x (with 0.11.9 and 0.11.13);
+* compatible with node v0.8.x, 0.9.x, 0.11.x, 12.x, 20.x;
 * compatible with node-webkit v0.8.x and 0.9.2;
 * `getPrinters()` to enumerate all installed printers with current jobs and statuses;
 * `getPrinter(printerName)` to get a specific/default printer info with current jobs and statuses;

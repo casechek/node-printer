@@ -131,6 +131,7 @@
     }
 
 
+#if NODE_VERSION_AT_LEAST(16, 0, 0)
 #define OPTIONAL_ARGUMENT_INTEGER(args, i, var, default)                             \
     int var;                                                                   \
     if (args.Length() <= (i)) {                                                \
@@ -142,12 +143,48 @@
     else {                                                                     \
         RETURN_EXCEPTION_STR("Argument " #i " must be an integer");                 \
     }
+#else
+#define OPTIONAL_ARGUMENT_INTEGER(args, i, var, default)                             \
+    int var;                                                                   \
+    if (args.Length() <= (i)) {                                                \
+        var = (default);                                                       \
+    }                                                                          \
+    else if (args[i]->IsInt32()) {                                             \
+        var = args[i]->Int32Value(Nan::GetCurrentContext()).FromJust();                                           \
+    }                                                                          \
+    else {                                                                     \
+        RETURN_EXCEPTION_STR("Argument " #i " must be an integer");                 \
+    }
+#endif
+
+// These macros are deprecated in newer Node.js versions and should be replaced
+// with modern equivalents if used
+#if NODE_VERSION_AT_LEAST(12, 0, 0)
+#define EMIT_EVENT(obj, argc, argv)                                            \
+    Nan::MakeCallback(                                                         \
+        Nan::GetCurrentContext()->Global(),                                    \
+        v8::Local<v8::Function>::Cast(                                         \
+            Nan::Get(obj, Nan::New("emit").ToLocalChecked()).ToLocalChecked()  \
+        ),                                                                     \
+        argc, argv                                                             \
+    );
+#else
 #define EMIT_EVENT(obj, argc, argv)                                            \
     TRY_CATCH_CALL((obj),                                                      \
         Local<Function>::Cast((obj)->Get(String::NewSymbol("emit"))),          \
         argc, argv                                                             \
     );
+#endif
 
+#if NODE_VERSION_AT_LEAST(12, 0, 0)
+#define TRY_CATCH_CALL(context, callback, argc, argv)                          \
+{   Nan::TryCatch try_catch;                                                   \
+    Nan::Call(callback, context, argc, argv);                                  \
+    if (try_catch.HasCaught()) {                                               \
+        Nan::FatalException(try_catch);                                        \
+    }                                                                          \
+}
+#else
 #define TRY_CATCH_CALL(context, callback, argc, argv)                          \
 {   TryCatch try_catch;                                                        \
     (callback)->Call((context), (argc), (argv));                               \
@@ -155,5 +192,6 @@
         FatalException(try_catch);                                             \
     }                                                                          \
 }
+#endif
 
 #endif

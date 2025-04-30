@@ -17,14 +17,14 @@
     "url": "git://github.com/thiagoelg/node-printer.git"
   },
   "devDependencies": {
-    "nodeunit": "*",
-    "prebuild": "^11.0.3",
+    "nodeunit": "^0.11.3",
+    "prebuild": "^13.0.1",
     "prebuild-ci": "^4.0.0",
-    "node-abi": "^3.8.0",
-    "patch-package": "^6.4.7"
+    "node-abi": "^3.52.0",
+    "patch-package": "^8.0.0"
   },
   "engines": {
-    "node": ">= 4.0.0"
+    "node": ">= 20.0.0"
   },
   "scripts": {
     "install": "prebuild-install || node-gyp rebuild",
@@ -40,15 +40,11 @@
     "host": "https://github.com/thiagoelg/node-printer/releases/download/",
     "remote_path": "v{version}"
   },
-  "licenses": [
-    {
-      "type": "BSD"
-    }
-  ],
+  "license": "MIT",
   "main": "./lib/printer",
   "dependencies": {
-    "nan": "^2.15.0",
-    "prebuild-install": "^7.0.1"
+    "nan": "^2.18.0",
+    "prebuild-install": "^7.1.1"
   },
   "types": "types/index.d.ts"
 }
