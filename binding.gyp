@@ -25,7 +25,8 @@
       'include_dirs' : [
         "<!(node -e \"require('nan')\")"
       ],
-      'cflags_cc+': [
+      'cflags_cc': [
+        "-DNOMINMAX",
         "-Wno-deprecated-declarations"
       ],
       'conditions': [
@@ -35,7 +36,10 @@
         ['OS!="win"', {
           'sources/': [['exclude', '_win\\.cc$']]}, {
           # else if OS==win, exclude also posix files
-          'sources/': [['exclude', '_posix\\.cc$']]
+          'sources/': [['exclude', '_posix\\.cc$']],
+          'defines': [
+            'NOMINMAX'
+          ]
         }],
         # specific settings
         ['OS!="win"', {

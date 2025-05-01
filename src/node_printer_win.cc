@@ -27,7 +27,7 @@ namespace{
         * @param iSizeKbytes size in bytes of required allocating memory
         */
         MemValue(const DWORD iSizeKbytes) {
-            _value = (Type*)malloc(iSizeKbytes);
+            this->_value = (Type*)malloc(iSizeKbytes);
         }
 		
         ~MemValue () {
@@ -35,10 +35,10 @@ namespace{
         }
     protected:
         virtual void free() {
-            if(_value != NULL)
+            if(this->_value != NULL)
             {
-                ::free(_value);
-                _value = NULL;
+                ::free(this->_value);
+                this->_value = NULL;
             }
         }
     };
@@ -218,11 +218,11 @@ namespace{
         //LPTSTR               pPrinterName;
         ADD_V8_STRING_PROPERTY(name, pPrinterName)
         //LPTSTR               pPrinterName;
-        ADD_V8_STRING_PROPERTY(printerName, pPrinterName);
+        ADD_V8_STRING_PROPERTY(printerName, pPrinterName)
         //LPTSTR               pUserName;
-        ADD_V8_STRING_PROPERTY(user, pUserName);
+        ADD_V8_STRING_PROPERTY(user, pUserName)
         //LPTSTR               pDatatype;
-        ADD_V8_STRING_PROPERTY(format, pDatatype);
+        ADD_V8_STRING_PROPERTY(format, pDatatype)
         //DWORD                Priority;
         Nan::Set(result_printer_job, V8_STRING_NEW_UTF8("priority"), V8_VALUE_NEW(Number, job->Priority));
         //DWORD                Size;
@@ -246,17 +246,17 @@ namespace{
 
         // Specific fields
         //LPTSTR               pMachineName;
-        ADD_V8_STRING_PROPERTY(machineName, pMachineName);
+        ADD_V8_STRING_PROPERTY(machineName, pMachineName)
         //LPTSTR               pDocument;
-        ADD_V8_STRING_PROPERTY(document, pDocument);
+        ADD_V8_STRING_PROPERTY(document, pDocument)
         //LPTSTR               pNotifyName;
-        ADD_V8_STRING_PROPERTY(notifyName, pNotifyName);
+        ADD_V8_STRING_PROPERTY(notifyName, pNotifyName)
         //LPTSTR               pPrintProcessor;
-        ADD_V8_STRING_PROPERTY(printProcessor, pPrintProcessor);
+        ADD_V8_STRING_PROPERTY(printProcessor, pPrintProcessor)
         //LPTSTR               pParameters;
-        ADD_V8_STRING_PROPERTY(parameters, pParameters);
+        ADD_V8_STRING_PROPERTY(parameters, pParameters)
         //LPTSTR               pDriverName;
-        ADD_V8_STRING_PROPERTY(driverName, pDriverName);
+        ADD_V8_STRING_PROPERTY(driverName, pDriverName)
 #undef ADD_V8_STRING_PROPERTY
         //LPDEVMODE            pDevMode;
         //PSECURITY_DESCRIPTOR pSecurityDescriptor;
