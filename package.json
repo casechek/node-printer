@@ -31,7 +31,7 @@
     "install": "prebuild-install || node-gyp rebuild",
     "prebuild-all": "prebuild --all --force --strip --verbose --openssl_fips=X",
     "prebuild": "prebuild",
-    "prebuild-electron": "prebuild --runtime electron --target 33.0.0 --strip --verbose",
+    "prebuild-electron": "prebuild --strip --verbose",
     "rebuild": "node-gyp rebuild",
     "test": "nodeunit test"
   },

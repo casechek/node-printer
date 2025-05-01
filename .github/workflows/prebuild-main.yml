@@ -25,8 +25,6 @@ jobs:
         run: |
           npm run prebuild -- --strip --all --arch ia32 -u ${{ secrets.PREBUILD_TOKEN }}
           npm run prebuild -- --strip --all --arch x64 -u ${{ secrets.PREBUILD_TOKEN }}
-          npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch ia32 -u ${{ secrets.PREBUILD_TOKEN }}
-          npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch x64 -u ${{ secrets.PREBUILD_TOKEN }}
   prebuild-macos:
     name: Prebuild Binaries for macOS
     runs-on: macos-latest
@@ -40,7 +38,6 @@ jobs:
       - name: Prebuild
         run: |
           npm run prebuild -- --strip --all --arch x64 -u ${{ secrets.PREBUILD_TOKEN }}
-          npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch x64 -u ${{ secrets.PREBUILD_TOKEN }}
   prebuild-windows:
     name: Prebuild Binaries for Windows
     runs-on: windows-latest
@@ -55,5 +52,3 @@ jobs:
         run: |
           npm run prebuild -- --strip --all --arch ia32 -u ${{ secrets.PREBUILD_TOKEN }}
           npm run prebuild -- --strip --all --arch x64 -u ${{ secrets.PREBUILD_TOKEN }}
-          npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch ia32 -u ${{ secrets.PREBUILD_TOKEN }}
-          npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch x64 -u ${{ secrets.PREBUILD_TOKEN }}

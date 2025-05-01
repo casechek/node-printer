@@ -23,8 +23,6 @@ jobs:
         run: |
           npm run prebuild -- --strip --all --arch ia32
           npm run prebuild -- --strip --all --arch x64
-          npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch ia32
-          npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch x64
   prebuild-macos:
     name: Prebuild Binaries for macOS
     runs-on: macos-latest
@@ -38,7 +36,6 @@ jobs:
       - name: Prebuild
         run: |
           npm run prebuild -- --strip --all --arch x64
-          npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch x64
   prebuild-windows:
     name: Prebuild Binaries for Windows
     runs-on: windows-latest
@@ -53,5 +50,3 @@ jobs:
         run: |
           npm run prebuild -- --strip --all --arch ia32
           npm run prebuild -- --strip --all --arch x64
-          npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch ia32
-          npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch x64
