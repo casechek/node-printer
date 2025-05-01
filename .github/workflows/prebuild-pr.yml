@@ -21,8 +21,8 @@ jobs:
       - run: npm i
       - name: Prebuild
         run: |
-          npm run prebuild -- --strip --all --arch ia32
-          npm run prebuild -- --strip --all --arch x64
+          npm run prebuild -- --strip --arch ia32
+          npm run prebuild -- --strip --arch x64
   prebuild-macos:
     name: Prebuild Binaries for macOS
     runs-on: macos-latest
