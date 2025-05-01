@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - run: npm i
       - name: Prebuild
         run: |
@@ -31,11 +31,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - run: npm i
       - name: Prebuild
         run: |
-          npm run prebuild -- --strip --all --arch x64
+          npm run prebuild -- --strip --arch x64
+          npm run prebuild -- --strip --arch arm64
   prebuild-windows:
     name: Prebuild Binaries for Windows
     runs-on: windows-latest
@@ -44,9 +45,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - run: npm i
       - name: Prebuild
         run: |
-          npm run prebuild -- --strip --all --arch ia32
-          npm run prebuild -- --strip --all --arch x64
+          npm run prebuild -- --strip --arch ia32
+          npm run prebuild -- --strip --arch x64
