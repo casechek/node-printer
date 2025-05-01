@@ -23,7 +23,6 @@ jobs:
       - run: npm i
       - name: Prebuild
         run: |
-          npm run apply-patches
           npm run prebuild -- --strip --all --arch ia32 -u ${{ secrets.PREBUILD_TOKEN }}
           npm run prebuild -- --strip --all --arch x64 -u ${{ secrets.PREBUILD_TOKEN }}
           npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch ia32 -u ${{ secrets.PREBUILD_TOKEN }}
@@ -40,7 +39,6 @@ jobs:
       - run: npm i
       - name: Prebuild
         run: |
-          npm run apply-patches
           npm run prebuild -- --strip --all --arch x64 -u ${{ secrets.PREBUILD_TOKEN }}
           npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch x64 -u ${{ secrets.PREBUILD_TOKEN }}
   prebuild-windows:
@@ -55,7 +53,6 @@ jobs:
       - run: npm i
       - name: Prebuild
         run: |
-          npm run apply-patches
           npm run prebuild -- --strip --all --arch ia32 -u ${{ secrets.PREBUILD_TOKEN }}
           npm run prebuild -- --strip --all --arch x64 -u ${{ secrets.PREBUILD_TOKEN }}
           npm run prebuild -- --runtime electron --target 33.0.0 --strip --arch ia32 -u ${{ secrets.PREBUILD_TOKEN }}

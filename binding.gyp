@@ -25,7 +25,8 @@
       'include_dirs' : [
         "<!(node -e \"require('nan')\")"
       ],
-      'cflags_cc+': [
+      'cflags_cc': [
+        "-DNOMINMAX",
         "-Wno-deprecated-declarations"
       ],
       'conditions': [

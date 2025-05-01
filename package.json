@@ -22,15 +22,13 @@
     "nodeunit": "^0.11.3",
     "prebuild": "^13.0.1",
     "prebuild-ci": "^4.0.0",
-    "node-abi": "^3.56.0",
-    "patch-package": "^8.0.0"
+    "node-abi": "^3.56.0"
   },
   "engines": {
     "node": ">= 20.0.0"
   },
   "scripts": {
-    "install": "npm run apply-patches && prebuild-install || node-gyp rebuild",
-    "apply-patches": "patch-package",
+    "install": "prebuild-install || node-gyp rebuild",
     "prebuild-all": "prebuild --all --force --strip --verbose --openssl_fips=X",
     "prebuild": "prebuild",
     "prebuild-electron": "prebuild --runtime electron --target 33.0.0 --strip --verbose",
