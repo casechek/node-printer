@@ -67,7 +67,10 @@ jobs:
           codesign -vvv --deep --strict lib/node_printer.node
           
           # Now create the package with the signed binary
-          tar -czf node-printer-v${{ needs.get-version.outputs.version }}-node-v115-darwin-x64.tar.gz lib
+          tar -czfv node-printer-v${{ needs.get-version.outputs.version }}-node-v115-darwin-x64.tar.gz lib
+          
+          echo "Checking for tar.gz files:"
+          find . -name "*.tar.gz" -type f
 
       - name: Upload macOS binary to GitHub release
         uses: softprops/action-gh-release@v2
