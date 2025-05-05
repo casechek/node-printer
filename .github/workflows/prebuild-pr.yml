@@ -67,7 +67,7 @@ jobs:
           codesign -vvv --deep --strict lib/node_printer.node
           
           # Now create the package with the signed binary
-          tar -czfv node-printer-v${{ needs.get-version.outputs.version }}-node-v115-darwin-x64.tar.gz lib
+          tar -czvf node-printer-v${{ needs.get-version.outputs.version }}-node-v115-darwin-x64.tar.gz lib
           
           echo "Checking for tar.gz files:"
           find . -name "*.tar.gz" -type f
