@@ -34,13 +34,11 @@ jobs:
 
       - name: Build and sign macOS prebuild
         run: |
-          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip
+          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip --pack
           mkdir -p lib/darwin-x64
           cp lib/node_printer.node lib/darwin-x64/
           ls -la lib/darwin-x64/ || echo "Directory not found"
           codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime lib/darwin-x64/node_printer.node || echo "File not found for signing"
-          # Package the binary for upload
-          tar -czvf node_printer-darwin-x64.tar.gz -C lib/darwin-x64 node_printer.node
 
       - name: Create GitHub Release if it doesn't exist
         uses: softprops/action-gh-release@v1
@@ -55,7 +53,9 @@ jobs:
         with:
           tag_name: v${{ steps.get-version.outputs.version }}
           draft: true
-          files: node_printer-darwin-x64.tar.gz
+          files: |
+            *.tar.gz
+            prebuilds/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -91,12 +91,12 @@ jobs:
           mkdir -p lib/win32-ia32
           
           # Build x64 version
-          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform win32 --strip
+          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform win32 --strip --pack
           # Copy to platform-specific directory
           copy lib\node_printer.node lib\win32-x64\
           
           # Build ia32 version
-          npx prebuild --backend node-gyp --target 20.3.0 --arch ia32 --platform win32 --strip
+          npx prebuild --backend node-gyp --target 20.3.0 --arch ia32 --platform win32 --strip --pack
           # Copy to platform-specific directory
           copy lib\node_printer.node lib\win32-ia32\
           
@@ -104,10 +104,6 @@ jobs:
           dir lib
           dir lib\win32-x64 || echo "x64 directory not found"
           dir lib\win32-ia32 || echo "ia32 directory not found"
-          
-          # Package the binaries for upload
-          tar -czvf node_printer-win32-x64.tar.gz -C lib/win32-x64 node_printer.node
-          tar -czvf node_printer-win32-ia32.tar.gz -C lib/win32-ia32 node_printer.node
 
       - name: Upload Windows binaries to GitHub release
         uses: softprops/action-gh-release@v1
@@ -115,7 +111,7 @@ jobs:
           tag_name: v${{ steps.get-version.outputs.version }}
           draft: true
           files: |
-            node_printer-win32-x64.tar.gz
-            node_printer-win32-ia32.tar.gz
+            *.tar.gz
+            prebuilds/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
