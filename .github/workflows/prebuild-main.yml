@@ -60,11 +60,32 @@ jobs:
 
       - name: Build and sign macOS prebuild
         run: |
-          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip --pack
+          # Build the binary
+          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip
+          
+          # Create platform-specific directory
           mkdir -p lib/darwin-x64
           cp lib/node_printer.node lib/darwin-x64/
-          ls -la lib/darwin-x64/ || echo "Directory not found"
-          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime lib/darwin-x64/node_printer.node || echo "File not found for signing"
+          
+          # Sign the binary - verbose output for debugging
+          echo "Signing binary with Team ID: ${{ vars.TEAM_ID }}"
+          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --verbose lib/darwin-x64/node_printer.node
+          
+          # Verify the signature
+          echo "Verifying signature:"
+          codesign -vvv --deep --strict lib/darwin-x64/node_printer.node
+          
+          # Also sign the original binary that will be packaged
+          echo "Signing original binary:"
+          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --verbose lib/node_printer.node
+          
+          # Verify the signature on the original binary
+          echo "Verifying original binary signature:"
+          codesign -vvv --deep --strict lib/node_printer.node
+          
+          # Now create the package with the signed binary
+          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --pack
+          
           # List directories to see where tar.gz files are
           echo "Checking for tar.gz files:"
           find . -name "*.tar.gz" -type f
