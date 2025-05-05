@@ -39,6 +39,9 @@ jobs:
           cp lib/node_printer.node lib/darwin-x64/
           ls -la lib/darwin-x64/ || echo "Directory not found"
           codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime lib/darwin-x64/node_printer.node || echo "File not found for signing"
+          # List directories to see where tar.gz files are
+          echo "Checking for tar.gz files:"
+          find . -name "*.tar.gz" -type f
 
       - name: Create GitHub Release if it doesn't exist
         uses: softprops/action-gh-release@v1
@@ -55,7 +58,7 @@ jobs:
           draft: true
           files: |
             *.tar.gz
-            lib/**/*.tar.gz
+            **/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -104,6 +107,10 @@ jobs:
           dir lib
           dir lib\win32-x64 || echo "x64 directory not found"
           dir lib\win32-ia32 || echo "ia32 directory not found"
+          
+          # List directories to see where tar.gz files are
+          echo "Checking for tar.gz files:"
+          dir *.tar.gz /s
 
       - name: Upload Windows binaries to GitHub release
         uses: softprops/action-gh-release@v1
@@ -112,6 +119,6 @@ jobs:
           draft: true
           files: |
             *.tar.gz
-            lib/**/*.tar.gz
+            **/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
