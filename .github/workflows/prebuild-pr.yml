@@ -35,21 +35,19 @@ jobs:
       - name: Build and sign macOS prebuild
         run: |
           npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip
-          ls -la prebuilds/
-          ls -la prebuilds/darwin-x64/ || echo "Directory not found"
-          ls -la prebuilds/@casechek/ || echo "Directory not found"
-          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime prebuilds/darwin-x64/node_printer.node || echo "File not found for signing"
+          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime ./prebuilds/darwin-x64/node_printer.node
 
       - name: Create GitHub Release if it doesn't exist
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ steps.get-version.outputs.version }}
           draft: true
+          files: prebuilds/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload prebuild to GitHub release
-        run: npx prebuild --upload-all -u ${{ secrets.GITHUB_TOKEN }}
+        run: npx prebuild --upload -u ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -75,6 +73,7 @@ jobs:
         with:
           tag_name: v${{ steps.get-version.outputs.version }}
           draft: true
+          files: prebuilds/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -84,6 +83,6 @@ jobs:
           dir prebuilds
 
       - name: Upload prebuilds to GitHub release
-        run: npx prebuild --upload-all -u ${{ secrets.GITHUB_TOKEN }}
+        run: npx prebuild --upload -u ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
