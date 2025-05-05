@@ -55,7 +55,7 @@ jobs:
           draft: true
           files: |
             *.tar.gz
-            prebuilds/*.tar.gz
+            lib/**/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -112,6 +112,6 @@ jobs:
           draft: true
           files: |
             *.tar.gz
-            prebuilds/*.tar.gz
+            lib/**/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
