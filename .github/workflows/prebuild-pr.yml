@@ -24,7 +24,7 @@ jobs:
 
       - name: Create GitHub Release
         id: create-release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.set-version.outputs.version }}
           draft: true # Initial creation as draft
@@ -68,7 +68,7 @@ jobs:
           find . -name "*.tar.gz" -type f
 
       - name: Upload macOS binary to GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.get-version.outputs.version }}
           draft: true # Keep as draft during upload
@@ -118,7 +118,7 @@ jobs:
           dir lib\win32-ia32 || echo "ia32 directory not found"
 
       - name: Upload Windows binaries to GitHub release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.get-version.outputs.version }}
           draft: true # Keep as draft during upload
@@ -137,7 +137,7 @@ jobs:
     # if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
     steps:
       - name: Publish Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.get-version.outputs.version }}
           draft: false # Publish the release
