@@ -20,6 +20,10 @@ jobs:
       - name: Install dependencies
         run: npm i
 
+      - name: Get Version
+        id: get-version
+        run: echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+
       - name: Extract certificate
         uses: apple-actions/import-codesign-certs@v3
         with:
@@ -30,6 +34,14 @@ jobs:
         run: |
           npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip
           codesign --sign "Developer ID Application: Your Name ${{vars.TEAM_ID}}" --timestamp --options runtime ./prebuilds/darwin-x64/node_printer.node
+
+      - name: Create GitHub Release if it doesn't exist
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get-version.outputs.version }}
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload prebuild to GitHub release
         run: npx prebuild --upload-all
@@ -46,6 +58,19 @@ jobs:
           node-version: 20
       - uses: actions/checkout@v4
       - run: npm i
+
+      - name: Get Version
+        id: get-version
+        run: echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release if it doesn't exist
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get-version.outputs.version }}
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Prebuild
         run: |
           npm run prebuild -- --strip --arch ia32
