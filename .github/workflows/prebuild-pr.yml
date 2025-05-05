@@ -24,7 +24,7 @@ jobs:
         id: get-version
         run: |
           echo "console.log(require('./package.json').version);" > get-version.js
-          echo "version=$(node get-version.js)" >> $GITHUB_OUTPUT
+          echo "version=$(node get-version.js)-pr${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
 
       - name: Extract certificate
         uses: apple-actions/import-codesign-certs@v3
@@ -66,7 +66,7 @@ jobs:
         id: get-version
         run: |
           echo "console.log(require('./package.json').version);" > get-version.js
-          echo "version=$(node get-version.js)" >> $GITHUB_OUTPUT
+          echo "version=$(node get-version.js)-pr${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release if it doesn't exist
         uses: softprops/action-gh-release@v1
