@@ -75,6 +75,7 @@ jobs:
           files: |
             *.tar.gz
             **/*.tar.gz
+          append_body: true # Append to existing release notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -124,6 +125,7 @@ jobs:
           files: |
             *.tar.gz
             **/*.tar.gz
+          append_body: true # Append to existing release notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -139,5 +141,6 @@ jobs:
         with:
           tag_name: v${{ needs.get-version.outputs.version }}
           draft: false # Publish the release
+          append_body: true # Ensure we're updating the existing release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
