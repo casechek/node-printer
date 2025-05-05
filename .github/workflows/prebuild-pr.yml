@@ -27,7 +27,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.set-version.outputs.version }}
-          draft: true # Initial creation as draft
+          draft: true
           name: Release v${{ steps.set-version.outputs.version }}
           generate_release_notes: true
         env:
@@ -71,11 +71,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.get-version.outputs.version }}
-          draft: true # Keep as draft during upload
+          draft: true
           files: |
             *.tar.gz
             **/*.tar.gz
-          append_body: true # Append to existing release notes
+          append_body: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -121,11 +121,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.get-version.outputs.version }}
-          draft: true # Keep as draft during upload
+          draft: true
           files: |
             *.tar.gz
             **/*.tar.gz
-          append_body: true # Append to existing release notes
+          append_body: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -133,14 +133,12 @@ jobs:
     name: Publish GitHub Release
     needs: [get-version, prebuild-macos, prebuild-windows]
     runs-on: ubuntu-latest
-    # Optional: Add a condition to only publish on certain events or branches
-    # if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
     steps:
       - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.get-version.outputs.version }}
-          draft: false # Publish the release
-          append_body: true # Ensure we're updating the existing release
+          draft: false
+          append_body: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
