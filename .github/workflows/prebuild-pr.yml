@@ -79,9 +79,18 @@ jobs:
 
       - name: Prebuild Windows binaries
         run: |
+          # Build 64-bit version
           npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform win32 --strip
+          # Save the 64-bit build
+          mkdir -p prebuilds-x64
+          move prebuilds\*.tar.gz prebuilds-x64\
+          
+          # Build 32-bit version
           npx prebuild --backend node-gyp --target 20.3.0 --arch ia32 --platform win32 --strip
-          dir prebuilds || echo "Prebuilds directory not found"
+          # Move all tar.gz files to the release directory
+          dir prebuilds\*.tar.gz
+          dir prebuilds-x64\*.tar.gz
+          move prebuilds-x64\*.tar.gz prebuilds\
 
       - name: Upload prebuilds to GitHub release
         run: npx prebuild --upload -u ${{ secrets.GITHUB_TOKEN }}
