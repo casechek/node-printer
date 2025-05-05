@@ -22,7 +22,6 @@ jobs:
 
       - name: Get Version
         id: get-version
-        shell: bash
         run: |
           echo "console.log(require('./package.json').version);" > get-version.js
           echo "version=$(node get-version.js)" >> $GITHUB_OUTPUT
@@ -36,7 +35,7 @@ jobs:
       - name: Build and sign macOS prebuild
         run: |
           npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip
-          codesign --sign "Developer ID Application: Your Name ${{vars.TEAM_ID}}" --timestamp --options runtime ./prebuilds/darwin-x64/node_printer.node
+          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime ./prebuilds/darwin-x64/node_printer.node
 
       - name: Create GitHub Release if it doesn't exist
         uses: softprops/action-gh-release@v1
@@ -64,7 +63,6 @@ jobs:
 
       - name: Get Version
         id: get-version
-        shell: bash
         run: |
           echo "console.log(require('./package.json').version);" > get-version.js
           echo "version=$(node get-version.js)" >> $GITHUB_OUTPUT
@@ -79,6 +77,5 @@ jobs:
 
       - name: Prebuild
         run: |
-          npm run prebuild -- --strip --arch ia32
-          npm run prebuild -- --strip --arch x64
+          npm run prebuild-all
           npm run prebuild -- --upload-all
