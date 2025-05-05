@@ -35,7 +35,7 @@ jobs:
       - name: Build and sign macOS prebuild
         run: |
           npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip
-          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime ./prebuilds/darwin-x64/node_printer.node
+          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime ./prebuilds/node_printer.node
 
       - name: Create GitHub Release if it doesn't exist
         uses: softprops/action-gh-release@v1
