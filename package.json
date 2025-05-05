@@ -38,9 +38,10 @@
   },
   "binary": {
     "module_name": "node_printer",
-    "module_path": "./lib/",
+    "module_path": "prebuilds/{platform}-{arch}/",
     "host": "https://github.com/casechek/node-printer/releases/download/",
-    "remote_path": "v{version}"
+    "remote_path": "./releases/",
+    "package_name": "node_printer.node"
   },
   "license": "MIT",
   "main": "./lib/printer",
