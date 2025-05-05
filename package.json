@@ -29,7 +29,7 @@
   },
   "scripts": {
     "install": "prebuild-install || node-gyp rebuild",
-    "prebuild-all": "prebuild --all --force --strip --verbose --openssl_fips=X",
+    "prebuild-all": "prebuild --all --force --strip --verbose",
     "prebuild": "prebuild",
     "prebuild-electron": "prebuild --strip --verbose",
     "rebuild": "node-gyp rebuild",

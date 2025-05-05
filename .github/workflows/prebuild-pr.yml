@@ -77,10 +77,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Prebuild
+      - name: Prebuild Windows binaries
         run: |
-          npm run prebuild-all
-          dir prebuilds
+          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform win32 --strip
+          npx prebuild --backend node-gyp --target 20.3.0 --arch ia32 --platform win32 --strip
+          dir prebuilds || echo "Prebuilds directory not found"
 
       - name: Upload prebuilds to GitHub release
         run: npx prebuild --upload -u ${{ secrets.GITHUB_TOKEN }}
