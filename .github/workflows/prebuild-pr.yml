@@ -35,7 +35,8 @@ jobs:
       - name: Build and sign macOS prebuild
         run: |
           npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip
-          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime ./prebuilds/node_printer.node
+          ls -la prebuilds/darwin-x64/ || echo "Directory not found"
+          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime prebuilds/darwin-x64/node_printer.node
 
       - name: Create GitHub Release if it doesn't exist
         uses: softprops/action-gh-release@v1
@@ -73,26 +74,21 @@ jobs:
         with:
           tag_name: v${{ steps.get-version.outputs.version }}
           draft: true
-          files: prebuilds/*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prebuild Windows binaries
         run: |
-          # Build 64-bit version
+          # Build x64 version with explicit path
           npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform win32 --strip
-          # Save the 64-bit build
-          mkdir -p prebuilds-x64
-          move prebuilds\*.tar.gz prebuilds-x64\
           
-          # Build 32-bit version
+          # Build ia32 version with explicit path
           npx prebuild --backend node-gyp --target 20.3.0 --arch ia32 --platform win32 --strip
-          # Move all tar.gz files to the release directory
-          dir prebuilds\*.tar.gz
-          dir prebuilds-x64\*.tar.gz
-          move prebuilds-x64\*.tar.gz prebuilds\
+          
+          # List the directories to verify
+          dir prebuilds
+          dir prebuilds\win32-x64 || echo "x64 directory not found"
+          dir prebuilds\win32-ia32 || echo "ia32 directory not found"
 
       - name: Upload prebuilds to GitHub release
-        run: npx prebuild --upload -u ${{ secrets.GITHUB_TOKEN }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx prebuild --upload-all -u ${{ secrets.GITHUB_TOKEN }}
