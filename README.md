@@ -4,7 +4,7 @@ Native bind printers on POSIX and Windows OS from Node.js, electron and node-web
 
 [![npm version](https://badge.fury.io/js/@thiagoelg%2Fnode-printer.svg)](https://www.npmjs.com/package/@thiagoelg/node-printer) [![Prebuild Binaries and Publish](https://github.com/thiagoelg/node-printer/actions/workflows/prebuild-main.yml/badge.svg)](https://github.com/thiagoelg/node-printer/actions/workflows/prebuild-main.yml)
 
-> Now compatible with Node.js 20+ with improved native bindings and updated dependencies
+> Now compatible with Node.js 20+ and Electron 33+ with improved native bindings and updated dependencies
 
 > It just works with Node 12 because of @thiagoelg in his [PR](https://github.com/tojocky/node-printer/pull/261)
 

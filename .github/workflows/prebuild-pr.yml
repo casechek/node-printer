@@ -9,14 +9,14 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
       - run: npm i
+
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Extract certificate
         uses: apple-actions/import-codesign-certs@v3
@@ -39,12 +39,12 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: npm i
       - name: Prebuild
         run: |
-          npm run prebuild -- --strip --all --arch ia32
-          npm run prebuild -- --strip --all --arch x64
+          npm run prebuild -- --strip --arch ia32
+          npm run prebuild -- --strip --arch x64
