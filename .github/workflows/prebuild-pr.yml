@@ -78,8 +78,7 @@ jobs:
           tag_name: v${{ needs.get-version.outputs.version }}
           draft: true
           files: |
-            *.tar.gz
-            **/*.tar.gz
+            node-printer-v${{ needs.get-version.outputs.version }}-node-v115-darwin-x64.tar.gz
           append_body: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
