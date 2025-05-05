@@ -60,7 +60,7 @@ jobs:
         run: |
           npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip
           
-          echo "Signing binary:"
+          echo "Signing binary with team ID ${{ vars.TEAM_ID }}:"
           codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --verbose lib/node_printer.node
           
           echo "Verifying signature:"
