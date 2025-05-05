@@ -20,11 +20,13 @@ jobs:
       - name: Install dependencies
         run: npm i
 
-      - name: Get Version
-        id: get-version
-        run: |
-          echo "console.log(require('./package.json').version);" > get-version.js
-          echo "version=$(node get-version.js)-pr${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+      - name: Get package version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+
+      - name: Set release version
+        id: set-version
+        run: echo "version=${{ steps.package-version.outputs.current-version }}-pr${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
 
       - name: Extract certificate
         uses: apple-actions/import-codesign-certs@v3
@@ -46,7 +48,7 @@ jobs:
       - name: Create GitHub Release if it doesn't exist
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.get-version.outputs.version }}
+          tag_name: v${{ steps.set-version.outputs.version }}
           draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -54,7 +56,7 @@ jobs:
       - name: Upload macOS binary to GitHub release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.get-version.outputs.version }}
+          tag_name: v${{ steps.set-version.outputs.version }}
           draft: true
           files: |
             *.tar.gz
@@ -67,22 +69,29 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - uses: actions/checkout@v4
-      - run: npm i
 
-      - name: Get Version
-        id: get-version
-        run: |
-          echo "console.log(require('./package.json').version);" > get-version.js
-          echo "version=$(node get-version.js)-pr${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Get package version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+
+      - name: Set release version
+        id: set-version
+        run: echo "version=${{ steps.package-version.outputs.current-version }}-pr${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release if it doesn't exist
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.get-version.outputs.version }}
+          tag_name: v${{ steps.set-version.outputs.version }}
           draft: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -111,7 +120,7 @@ jobs:
       - name: Upload Windows binaries to GitHub release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.get-version.outputs.version }}
+          tag_name: v${{ steps.set-version.outputs.version }}
           draft: true
           files: |
             *.tar.gz
