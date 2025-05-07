@@ -60,9 +60,11 @@ jobs:
         run: |
           npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip
           
-          echo "Signing binary with team ID ${{ vars.TEAM_ID }}:"
-          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --verbose lib/node_printer.node
+          # Sign the binary - verbose output for debugging
+          echo "Signing binary with Team ID: ${{ vars.TEAM_ID }}"
+          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime,hardened_runtime --force --entitlements=entitlements.plist --verbose lib/node_printer.node
           
+          # Verify the signature
           echo "Verifying signature:"
           codesign -vvv --deep --strict lib/node_printer.node
           
