@@ -35,11 +35,11 @@
     "test": "nodeunit test"
   },
   "binary": {
-    "module_name": "node_printer",
+    "module_name": "node-printer",
     "module_path": "lib",
     "host": "https://github.com/casechek/node-printer/releases/download/",
     "remote_path": "v{version}",
-    "package_name": "{module_name}-v{version}-{node_abi}-{platform}-{arch}.tar.gz"
+    "package_name": "{module_name}-v{version}-{runtime}-v{node_abi}-{platform}-{arch}.tar.gz"
   },
   "license": "MIT",
   "main": "./lib/printer",
