@@ -58,7 +58,14 @@ jobs:
 
       - name: Build and sign macOS prebuild
         run: |
-          npx prebuild -t 20.18.0 --arch x64 --platform darwin -r electron --strip -c 'codesign --sign ${{ vars.TEAM_ID }} --timestamp --options runtime --force --entitlements=entitlements.plist --verbose lib/node_printer.node'
+          mkdir -p lib\darwin-x64\
+          mkdir -p lib\darwin-arm64\
+          
+          npx prebuild -t 20.18.0 --arch x64 --platform darwin -r electron --strip -c 'codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
+          copy lib\node_printer.node lib\darwin-x64\
+          
+          npx prebuild -t 20.18.0 --arch arm64 --platform darwin -r electron --strip -c 'codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
+          copy lib\node_printer.node lib\darwin-arm64\
           
           echo "Checking for tar.gz files:"
           find . -name "*.tar.gz" -type f
@@ -69,64 +76,59 @@ jobs:
           tag_name: v${{ needs.get-version.outputs.version }}
           draft: true
           files: |
-            **/node-printer-*darwin-x64.tar.gz
+            *.tar.gz
+            **/*.tar.gz
           append_body: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-#  prebuild-windows:
-#    name: Prebuild Binaries for Windows
-#    needs: get-version
-#    runs-on: windows-latest
-#    timeout-minutes: 30
-#    steps:
-#      - name: Setup Node
-#        uses: actions/setup-node@v4
-#        with:
-#          node-version: 20
-#
-#      - name: Checkout
-#        uses: actions/checkout@v4
-#
-#      - name: Install dependencies
-#        run: npm i
-#
-#      - name: Prebuild Windows binaries
-#        run: |
-#          # Create platform-specific directories
-#          mkdir -p lib/win32-x64
-#          mkdir -p lib/win32-ia32
-#
-#          # Build x64 version
-#          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform win32 --strip --pack
-#          # Copy to platform-specific directory
-#          copy lib\node_printer.node lib\win32-x64\
-#
-#          # Build ia32 version
-#          npx prebuild --backend node-gyp --target 20.3.0 --arch ia32 --platform win32 --strip --pack
-#          # Copy to platform-specific directory
-#          copy lib\node_printer.node lib\win32-ia32\
-#
-#          # List the directories to verify
-#          dir lib
-#          dir lib\win32-x64 || echo "x64 directory not found"
-#          dir lib\win32-ia32 || echo "ia32 directory not found"
-#
-#      - name: Upload Windows binaries to GitHub release
-#        uses: softprops/action-gh-release@v2
-#        with:
-#          tag_name: v${{ needs.get-version.outputs.version }}
-#          draft: true
-#          files: |
-#            *.tar.gz
-#            **/*.tar.gz
-#          append_body: true
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  prebuild-windows:
+    name: Prebuild Binaries for Windows
+    needs: get-version
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm i
+
+      - name: Prebuild Windows binaries
+        run: |
+          mkdir -p lib/win32-x64
+          mkdir -p lib/win32-ia32
+          
+          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform win32 --strip --pack
+          copy lib\node_printer.node lib\win32-x64\
+          
+          npx prebuild --backend node-gyp --target 20.3.0 --arch ia32 --platform win32 --strip --pack
+          copy lib\node_printer.node lib\win32-ia32\
+          
+          dir lib
+          dir lib\win32-x64 || echo "x64 directory not found"
+          dir lib\win32-ia32 || echo "ia32 directory not found"
+
+      - name: Upload Windows binaries to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.get-version.outputs.version }}
+          draft: true
+          files: |
+            *.tar.gz
+            **/*.tar.gz
+          append_body: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish-release:
     name: Publish GitHub Release
-    needs: [get-version, prebuild-macos]
+    needs: [get-version, prebuild-macos, prebuild-windows]
     runs-on: ubuntu-latest
     steps:
       - name: Publish Release
