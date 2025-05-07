@@ -1,5 +1,9 @@
 name: Prebuild Binaries
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
 
@@ -58,7 +62,7 @@ jobs:
 
       - name: Build and sign macOS prebuild
         run: |
-          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip --pack --prepack '--sign ${{ vars.TEAM_ID }} --timestamp --options runtime'
+          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip --pack --prepack 'codesign --sign ${{ vars.TEAM_ID }} --timestamp --options runtime'
           npx prebuild --backend node-gyp --target 20.3.0 --arch amd64 --platform darwin --strip --pack --prepack 'codesign --sign ${{ vars.TEAM_ID }} --timestamp --options runtime'
           
           echo "Checking for tar.gz files:"
