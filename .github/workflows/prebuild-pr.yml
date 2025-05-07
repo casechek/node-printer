@@ -63,13 +63,21 @@ jobs:
 
       - name: Build and sign macOS prebuild
         run: |
+          mkdir -p lib/electron/darwin-x64/
+          mkdir -p lib/electron/darwin-arm64/
           mkdir -p lib/darwin-x64/
           mkdir -p lib/darwin-arm64/
           
           npx prebuild --backend node-gyp -t 20.3.0 --arch x64 --platform darwin --strip -r electron -c 'codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
-          cp lib/node_printer.node lib/darwin-x64/
+          cp lib/node_printer.node lib/electron/darwin-x64/
           
           npx prebuild --backend node-gyp -t 20.3.0 --arch arm64 --platform darwin --strip -r electron -c 'codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
+          cp lib/node_printer.node lib/electron/darwin-arm64/
+          
+          npx prebuild --backend node-gyp -t 20.3.0 --arch x64 --platform darwin --strip -c 'codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
+          cp lib/node_printer.node lib/darwin-x64/
+          
+          npx prebuild --backend node-gyp -t 20.3.0 --arch arm64 --platform darwin --strip -c 'codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
           cp lib/node_printer.node lib/darwin-arm64/
           
           echo "Checking for tar.gz files:"
