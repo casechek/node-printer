@@ -69,7 +69,7 @@ jobs:
           tag_name: v${{ needs.get-version.outputs.version }}
           draft: true
           files: |
-            node-printer-v${{ needs.get-version.outputs.version }}-electron-v107-darwin-x64.tar.gz
+            node-printer-*.tar.gz
           append_body: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
