@@ -62,7 +62,7 @@ jobs:
           
           # Sign the binary - verbose output for debugging
           echo "Signing binary with Team ID: ${{ vars.TEAM_ID }}"
-          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime,hardened_runtime --force --entitlements=entitlements.plist --verbose lib/node_printer.node
+          codesign --sign ${{ vars.TEAM_ID }} --timestamp --options runtime --force --entitlements=entitlements.plist --verbose lib/node_printer.node
           
           # Verify the signature
           echo "Verifying signature:"
