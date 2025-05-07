@@ -3,6 +3,11 @@ name: Prebuild Binaries
 on:
   pull_request:
 
+# Add concurrency configuration to ensure only one workflow runs at a time
+concurrency:
+  group: prebuild-pr
+  cancel-in-progress: true
+
 jobs:
   get-version:
     name: Get Package Version
@@ -61,10 +66,10 @@ jobs:
           mkdir -p lib\darwin-x64\
           mkdir -p lib\darwin-arm64\
           
-          npx prebuild -t 20.3.0 --arch x64 --platform darwin -r electron --strip -c 'codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
+          npx prebuild --backend node-gyp -t 20.3.0 --arch x64 --platform darwin --strip -c 'codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
           copy lib\node_printer.node lib\darwin-x64\
           
-          npx prebuild -t 20.3.0 --arch arm64 --platform darwin -r electron --strip -c 'codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
+          npx prebuild --backend node-gyp -t 20.3.0 --arch arm64 --platform darwin --strip -c 'codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
           copy lib\node_printer.node lib\darwin-arm64\
           
           echo "Checking for tar.gz files:"
