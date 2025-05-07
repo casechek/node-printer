@@ -58,7 +58,7 @@ jobs:
 
       - name: Build and sign macOS prebuild
         run: |
-          npx prebuild --arch x64 --platform darwin -r electron --strip -c 'codesign --sign ${{ vars.TEAM_ID }} --timestamp --options runtime --force --entitlements=entitlements.plist --verbose lib/node_printer.node'
+          npx prebuild -t 33.0.2 --arch x64 --platform darwin -r electron --strip -c 'codesign --sign ${{ vars.TEAM_ID }} --timestamp --options runtime --force --entitlements=entitlements.plist --verbose lib/node_printer.node'
           
           echo "Checking for tar.gz files:"
           find . -name "*.tar.gz" -type f
