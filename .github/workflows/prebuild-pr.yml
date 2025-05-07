@@ -67,10 +67,10 @@ jobs:
           mkdir -p lib\darwin-arm64\
           
           npx prebuild --backend node-gyp -t 20.3.0 --arch x64 --platform darwin --strip -c 'codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
-          cp lib\node_printer.node lib\darwin-x64\
+          cp lib/node_printer.node lib/darwin-x64/
           
           npx prebuild --backend node-gyp -t 20.3.0 --arch arm64 --platform darwin --strip -c 'codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
-          cp lib\node_printer.node lib\darwin-arm64\
+          cp lib/node_printer.node lib/darwin-arm64/
           
           echo "Checking for tar.gz files:"
           find . -name "*.tar.gz" -type f
