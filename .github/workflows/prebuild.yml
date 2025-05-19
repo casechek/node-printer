@@ -1,9 +1,15 @@
-name: Main Prebuild Binaries
+name: Prebuild Binaries
 
 on:
   push:
     branches:
       - main
+  pull_request:
+
+# Add concurrency configuration to ensure only one workflow runs at a time
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   get-version:
@@ -22,7 +28,12 @@ jobs:
 
       - name: Set release version
         id: set-version
-        run: echo "version=${{ steps.package-version.outputs.current-version }}" >> $GITHUB_OUTPUT
+        run: |
+          if [ -n "${{ github.event.pull_request.number }}" ]; then
+            echo "version=${{ steps.package-version.outputs.current-version }}-pr${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${{ steps.package-version.outputs.current-version }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Create GitHub Release
         id: create-release
@@ -60,12 +71,23 @@ jobs:
 
       - name: Build and sign macOS prebuild
         run: |
-          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform darwin --strip --pack
-          mkdir -p lib/darwin-x64
+          mkdir -p lib/electron/darwin-x64/
+          mkdir -p lib/electron/darwin-arm64/
+          mkdir -p lib/darwin-x64/
+          mkdir -p lib/darwin-arm64/
+          
+          npx prebuild --backend node-gyp -t 33.0.2 --arch x64 --platform darwin --strip -r electron -c 'codesign --sign "${{ vars.CERTIFICATE_IDENTITY }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
+          cp lib/node_printer.node lib/electron/darwin-x64/
+          
+          npx prebuild --backend node-gyp -t 33.0.2 --arch arm64 --platform darwin --strip -r electron -c 'codesign --sign "${{ vars.CERTIFICATE_IDENTITY }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
+          cp lib/node_printer.node lib/electron/darwin-arm64/
+          
+          npx prebuild --backend node-gyp -t 20.3.0 --arch x64 --platform darwin --strip -c 'codesign --sign "${{ vars.CERTIFICATE_IDENTITY }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
           cp lib/node_printer.node lib/darwin-x64/
-          ls -la lib/darwin-x64/ || echo "Directory not found"
-          codesign --sign "${{ vars.TEAM_ID }}" --timestamp --options runtime lib/darwin-x64/node_printer.node || echo "File not found for signing"
-          # List directories to see where tar.gz files are
+          
+          npx prebuild --backend node-gyp -t 20.3.0 --arch arm64 --platform darwin --strip -c 'codesign --sign "${{ vars.CERTIFICATE_IDENTITY }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
+          cp lib/node_printer.node lib/darwin-arm64/
+          
           echo "Checking for tar.gz files:"
           find . -name "*.tar.gz" -type f
 
@@ -100,21 +122,15 @@ jobs:
 
       - name: Prebuild Windows binaries
         run: |
-          # Create platform-specific directories
           mkdir -p lib/win32-x64
           mkdir -p lib/win32-ia32
           
-          # Build x64 version
           npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform win32 --strip --pack
-          # Copy to platform-specific directory
           copy lib\node_printer.node lib\win32-x64\
           
-          # Build ia32 version
           npx prebuild --backend node-gyp --target 20.3.0 --arch ia32 --platform win32 --strip --pack
-          # Copy to platform-specific directory
           copy lib\node_printer.node lib\win32-ia32\
           
-          # List the directories to verify
           dir lib
           dir lib\win32-x64 || echo "x64 directory not found"
           dir lib\win32-ia32 || echo "ia32 directory not found"
