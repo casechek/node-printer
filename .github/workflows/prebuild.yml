@@ -11,6 +11,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Single source of truth for the runtimes we ship binaries for.
+# ELECTRON_TARGET must track the `electron` version in casechek/kiosk-electron's
+# package.json -- prebuilds are keyed by ABI, so a mismatch silently sends the
+# consumer back to compiling from source.
+env:
+  NODE_TARGET: '20.3.0'
+  ELECTRON_TARGET: '35.7.5'
+
 jobs:
   get-version:
     name: Get Package Version
@@ -60,8 +68,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # --ignore-scripts skips the package's own `prebuild-install || node-gyp rebuild`
+      # install hook; the steps below do the real builds.
       - name: Install dependencies
-        run: npm i
+        run: npm ci --ignore-scripts
 
       - name: Extract certificate
         uses: apple-actions/import-codesign-certs@v3
@@ -69,29 +79,22 @@ jobs:
           p12-file-base64: ${{ secrets.APPLICATION_CERTIFICATE_P12 }}
           p12-password: ${{ secrets.APPLICATION_CERTIFICATE_P12_PASSWORD }}
 
-      - name: Build and sign macOS prebuild
+      - name: Build and sign macOS prebuilds
+        env:
+          SIGN: codesign --sign "${{ vars.CERTIFICATE_IDENTITY }}" --timestamp --options runtime --force --verbose lib/node_printer.node
         run: |
-          mkdir -p lib/electron/darwin-x64/
-          mkdir -p lib/electron/darwin-arm64/
-          mkdir -p lib/darwin-x64/
-          mkdir -p lib/darwin-arm64/
-          
-          npx prebuild --backend node-gyp -t 33.0.2 --arch x64 --platform darwin --strip -r electron -c 'codesign --sign "${{ vars.CERTIFICATE_IDENTITY }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
-          cp lib/node_printer.node lib/electron/darwin-x64/
-          
-          npx prebuild --backend node-gyp -t 33.0.2 --arch arm64 --platform darwin --strip -r electron -c 'codesign --sign "${{ vars.CERTIFICATE_IDENTITY }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
-          cp lib/node_printer.node lib/electron/darwin-arm64/
-          
-          npx prebuild --backend node-gyp -t 20.3.0 --arch x64 --platform darwin --strip -c 'codesign --sign "${{ vars.CERTIFICATE_IDENTITY }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
-          cp lib/node_printer.node lib/darwin-x64/
-          
-          npx prebuild --backend node-gyp -t 20.3.0 --arch arm64 --platform darwin --strip -c 'codesign --sign "${{ vars.CERTIFICATE_IDENTITY }}" --timestamp --options runtime --force --verbose lib/node_printer.node'
-          cp lib/node_printer.node lib/darwin-arm64/
-          
-          echo "Checking for tar.gz files:"
-          find . -name "*.tar.gz" -type f
+          set -euo pipefail
+          for arch in x64 arm64; do
+            npx prebuild --backend node-gyp -r electron -t "$ELECTRON_TARGET" \
+              --arch "$arch" --platform darwin --strip -c "$SIGN"
+            npx prebuild --backend node-gyp -t "$NODE_TARGET" \
+              --arch "$arch" --platform darwin --strip -c "$SIGN"
+          done
 
-      - name: Upload macOS binary to GitHub release
+          echo "Built archives:"
+          find prebuilds -name '*.tar.gz' -type f
+
+      - name: Upload macOS binaries to GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.get-version.outputs.version }}
@@ -106,7 +109,11 @@ jobs:
   prebuild-windows:
     name: Prebuild Binaries for Windows
     needs: get-version
-    runs-on: windows-latest
+    # Pinned to Visual Studio 2022 on purpose. `windows-latest` moved to VS 2026
+    # (MSVC v145) in June 2026; this nan-based addon has never been compiled with that
+    # toolset, and the binaries here ship to production kiosks. Keep the toolchain
+    # stable and change it deliberately, not via a runner-image migration.
+    runs-on: windows-2022
     timeout-minutes: 30
     steps:
       - name: Setup Node
@@ -117,23 +124,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # --ignore-scripts skips the package's own `prebuild-install || node-gyp rebuild`
+      # install hook; the steps below do the real builds.
       - name: Install dependencies
-        run: npm i
+        run: npm ci --ignore-scripts
 
-      - name: Prebuild Windows binaries
+      - name: Build Windows prebuilds
         run: |
-          mkdir -p lib/win32-x64
-          mkdir -p lib/win32-ia32
-          
-          npx prebuild --backend node-gyp --target 20.3.0 --arch x64 --platform win32 --strip --pack
-          copy lib\node_printer.node lib\win32-x64\
-          
-          npx prebuild --backend node-gyp --target 20.3.0 --arch ia32 --platform win32 --strip --pack
-          copy lib\node_printer.node lib\win32-ia32\
-          
-          dir lib
-          dir lib\win32-x64 || echo "x64 directory not found"
-          dir lib\win32-ia32 || echo "ia32 directory not found"
+          npx prebuild --backend node-gyp -t $env:NODE_TARGET --arch x64 --platform win32 --strip
+          npx prebuild --backend node-gyp -t $env:NODE_TARGET --arch ia32 --platform win32 --strip
+          # Electron build for kiosk-electron: without this, @electron/rebuild falls back
+          # to node-gyp on the consumer's runner.
+          npx prebuild --backend node-gyp -r electron -t $env:ELECTRON_TARGET --arch x64 --platform win32 --strip
+
+          Write-Host "Built archives:"
+          Get-ChildItem -Path prebuilds -Recurse -Filter *.tar.gz | Select-Object -ExpandProperty FullName
 
       - name: Upload Windows binaries to GitHub release
         uses: softprops/action-gh-release@v2
@@ -147,9 +152,42 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  verify-prebuilds:
+    name: Verify prebuild asset names
+    needs: [get-version, prebuild-macos, prebuild-windows]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      # Guards the failure mode that shipped in v1.1.0/v1.2.0: binaries were uploaded,
+      # but under names prebuild-install never asks for, so every consumer silently
+      # compiled from source instead.
+      - name: Assert every expected archive was uploaded
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: v${{ needs.get-version.outputs.version }}
+        run: |
+          node tools/verify-prebuilds.mjs "$RELEASE_TAG" \
+            node:$NODE_TARGET:win32:x64 \
+            node:$NODE_TARGET:win32:ia32 \
+            node:$NODE_TARGET:darwin:x64 \
+            node:$NODE_TARGET:darwin:arm64 \
+            electron:$ELECTRON_TARGET:win32:x64 \
+            electron:$ELECTRON_TARGET:darwin:x64 \
+            electron:$ELECTRON_TARGET:darwin:arm64
+
   publish-release:
     name: Publish GitHub Release
-    needs: [get-version, prebuild-macos, prebuild-windows]
+    needs: [get-version, prebuild-macos, prebuild-windows, verify-prebuilds]
     runs-on: ubuntu-latest
     steps:
       - name: Publish Release
