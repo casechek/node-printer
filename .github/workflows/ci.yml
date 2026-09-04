@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Settings here mirror casechek/kiosk-electron:
+#   NODE_VERSION    <- actions/setup-node in its build-and-deploy.yml
+#   ELECTRON_TARGET <- its `electron` devDependency
+env:
+  NODE_VERSION: '20'
+  ELECTRON_TARGET: '35.7.5'
+
+jobs:
+  compile:
+    name: Compile ${{ matrix.os }} / ${{ matrix.runtime }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-2022]
+        runtime: [node, electron]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Assert the addon was built
+        shell: bash
+        run: test -f lib/node_printer.node
+
+      - name: Rebuild against Electron headers
+        if: matrix.runtime == 'electron'
+        run: >
+          npx node-gyp rebuild
+          --runtime=electron
+          --target=${{ env.ELECTRON_TARGET }}
+          --dist-url=https://electronjs.org/headers
+
+      # The node build is required to run tests
+      - name: Test
+        if: matrix.runtime == 'node'
+        run: npm test
+
+  cross-arch-macos:
+    name: macOS cross-arch compile
+    # Matches kiosk-electron's macOS runner, which publishes arm64 and x64 from
+    # this single arm64 image.
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ensure a x64 build succeeds on an arm64 host
+      - name: Build x64 on an arm64 host and assert the slice
+        run: |
+          set -euo pipefail
+          npx node-gyp rebuild --arch=x64
+          file lib/node_printer.node
+          file lib/node_printer.node | grep -q x86_64
