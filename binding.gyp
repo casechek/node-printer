@@ -18,9 +18,9 @@
     {
       'target_name': 'node_printer',
       'sources': [
-        # is like "ls -1 src/*.cc", but gyp does not support direct patterns on
-        # sources
-        '<!@(["python", "tools/getSourceFiles.py", "src", "cc"])'
+        'src/node_printer.cc',
+        'src/node_printer_posix.cc',
+        'src/node_printer_win.cc'
       ],
       'include_dirs' : [
         "<!(node -e \"require('nan')\")"
@@ -67,7 +67,7 @@
           'xcode_settings': {
             "OTHER_CPLUSPLUSFLAGS":["-std=c++20", "-stdlib=libc++"],
             "OTHER_LDFLAGS": ["-stdlib=libc++"],
-            "MACOSX_DEPLOYMENT_TARGET": "10.14",
+            "MACOSX_DEPLOYMENT_TARGET": "11.0",
             "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
             "CLANG_CXX_LIBRARY": "libc++",
             "CLANG_CXX_LANGUAGE_STANDARD": "c++20"

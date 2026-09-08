@@ -1,64 +1,86 @@
-Node Printer Prebuild
-============
-Native bind printers on POSIX and Windows OS from Node.js, electron and node-webkit.
+# @casechek/node-printer
 
-[![npm version](https://badge.fury.io/js/@thiagoelg%2Fnode-printer.svg)](https://www.npmjs.com/package/@thiagoelg/node-printer) [![Prebuild Binaries and Publish](https://github.com/thiagoelg/node-printer/actions/workflows/prebuild-main.yml/badge.svg)](https://github.com/thiagoelg/node-printer/actions/workflows/prebuild-main.yml)
+Native printer bindings for Node.js and Electron — CUPS on macOS, the Win32 print spooler on Windows.
 
-> Now compatible with Node.js 20+ and Electron 33+ with improved native bindings and updated dependencies
+Casechek's fork of [tojocky/node-printer](https://github.com/tojocky/node-printer), by way of
+[thiagoelg/node-printer](https://github.com/thiagoelg/node-printer).
 
-> It just works with Node 12 because of @thiagoelg in his [PR](https://github.com/tojocky/node-printer/pull/261)
+## Installation
 
-> Prebuild and CI integration courtesy of @ekoeryanto in his [FORK](https://github.com/ekoeryanto/node-printer)
+The addon is compiled from source at install time:
+npm runs `node-gyp rebuild` automatically for any package with a `binding.gyp`, and the build
+output is copied to `lib/node_printer.node`.
 
-If you have a problem, ask question to [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tojocky/node-printer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) or find/create a new [Github issue](https://github.com/thiagoelg/node-printer/issues)
-
-___
-### **Below is the original README**
-___
-
-### Reason:
-
-I was involved in a project where I need to print from Node.JS. This is the reason why I created this project and I want to share my code with others.
-
-
-### Features:
-
-* no dependecies;
-* native method wrappers from Windows  and POSIX (which uses [CUPS 1.4/MAC OS X 10.6](http://cups.org/)) APIs;
-* compatible with node v0.8.x, 0.9.x, 0.11.x, 12.x, 20.x;
-* compatible with node-webkit v0.8.x and 0.9.2;
-* `getPrinters()` to enumerate all installed printers with current jobs and statuses;
-* `getPrinter(printerName)` to get a specific/default printer info with current jobs and statuses;
-* `getPrinterDriverOptions(printerName)` ([POSIX](http://en.wikipedia.org/wiki/POSIX) only) to get a specific/default printer driver options such as supported paper size and other info
-* `getSelectedPaperSize(printerName)` ([POSIX](http://en.wikipedia.org/wiki/POSIX) only) to get a specific/default printer default paper size from its driver options
-* `getDefaultPrinterName()` return the default printer name;
-* `printDirect(options)` to send a job to a specific/default printer, now supports [CUPS options](http://www.cups.org/documentation.php/options.html) passed in the form of a JS object (see `cancelJob.js` example). To print a PDF from windows it is possible by using [node-pdfium module](https://github.com/tojocky/node-pdfium) to convert a PDF format into EMF and after to send to printer as EMF;
-* `printFile(options)`  ([POSIX](http://en.wikipedia.org/wiki/POSIX) only) to print a file;
-* `getSupportedPrintFormats()` to get all possible print formats for printDirect method which depends on OS. `RAW` and `TEXT` are supported from all OS-es;
-* `getJob(printerName, jobId)` to get a specific job info including job status;
-* `setJob(printerName, jobId, command)` to send a command to a job (e.g. `'CANCEL'` to cancel the job);
-* `getSupportedJobCommands()` to get supported job commands for setJob() depends on OS. `'CANCEL'` command is supported from all OS-es.
-
-
-### How to install:
-```
-npm install @thiagoelg/node-printer
+```json
+"dependencies": {
+  "@casechek/node-printer": "github:casechek/node-printer#v1.3.0"
+}
 ```
 
-### How to use:
+Consumers pin a git tag. There is no npm-registry publish.
 
-See [examples](https://github.com/thiagoelg/node-printer/tree/main/examples)
+### Build requirements
 
-### Author(s):
+| | |
+|---|---|
+| **macOS** | Xcode Command Line Tools (`xcode-select --install`). Provides clang, the CUPS headers, and `cups-config`. macOS 11+. |
+| **Windows** | Visual Studio 2022 or newer Build Tools with the "Desktop development with C++" workload. |
+| **Node** | 20 or newer (`engines.node: >= 20.0.0`). |
 
-* Ion Lupascu, ionlupascu@gmail.com
+Requires a C++20 toolchain.
 
-### Contibutors:
+### Electron
 
-* Thiago Lugli, @thiagoelg
-* Eko Eryanto, @ekoeryanto
+This addon uses [NAN](https://github.com/nodejs/nan), so its binary is tied to a specific ABI.
+Under Electron, let `@electron/rebuild` recompile it against the Electron headers — electron-forge
+and electron-builder both do this automatically. Nothing here needs to know which Electron version
+you are on.
 
-Feel free to download, test and propose new futures
+To rebuild by hand:
 
-### License:
- [The MIT License (MIT)](http://opensource.org/licenses/MIT)
+```bash
+npx node-gyp rebuild --runtime=electron --target=<electron-version> \
+  --dist-url=https://electronjs.org/headers
+```
+
+## API
+
+- `getPrinters()` — enumerate installed printers with current jobs and statuses
+- `getPrinter(printerName)` — info for a specific or the default printer
+- `getDefaultPrinterName()`
+- `printDirect(options)` — send a job to a printer; accepts [CUPS options](https://www.cups.org/doc/options.html) as a JS object (see `examples/cancelJob.js`)
+- `printFile(options)` — POSIX only
+- `getPrinterDriverOptions(printerName)` — POSIX only; supported paper sizes and other driver info
+- `getSelectedPaperSize(printerName)` — POSIX only
+- `getSupportedPrintFormats()` — valid formats for `printDirect`; `RAW` and `TEXT` are supported everywhere
+- `getJob(printerName, jobId)` / `setJob(printerName, jobId, command)`
+- `getSupportedJobCommands()` — `'CANCEL'` is supported everywhere
+
+TypeScript definitions are in `types/index.d.ts`. Runnable examples are in [`examples/`](./examples).
+
+## Development
+
+```bash
+npm ci              # installs deps and compiles the addon
+npm run rebuild     # recompile after changing anything in src/
+npm test            # jest; requires a Node-ABI build of the addon
+```
+
+CI (`.github/workflows/ci.yml`) compiles on `macos-latest`, `windows-2022`, and `windows-latest`
+against both the Node and Electron runtimes, and verifies that an x64 binary can be cross-compiled
+on an arm64 macOS host. It publishes nothing — the point is to catch toolchain regressions here
+rather than in a downstream release.
+
+## Releasing
+
+Bump `version` in `package.json` and merge to `main`. `.github/workflows/tag-release.yml` creates
+the matching `vX.Y.Z` tag and GitHub release. Consumers move by bumping their git ref.
+
+## Authors
+
+Ion Lupascu (ionlupascu@gmail.com), with contributions from Thiago Lugli (@thiagoelg),
+Eko Eryanto (@ekoeryanto), Stephen Carlin, and Steven Lehn.
+
+## License
+
+[MIT](./LICENSE)

@@ -1,7 +1,7 @@
 {
   "name": "@casechek/node-printer",
   "description": "Node.js printer bindings",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "homepage": "https://github.com/casechek/node-printer",
   "author": {
     "name": "Ion Lupascu",
@@ -20,32 +20,26 @@
   },
   "devDependencies": {
     "jest": "^30.0.4",
-    "node-abi": "^3.56.0",
-    "prebuild": "^13.0.1",
-    "prebuild-ci": "^4.0.0"
+    "node-gyp": "^12.4.0"
   },
   "engines": {
     "node": ">= 20.0.0"
   },
   "scripts": {
-    "install": "prebuild-install || node-gyp rebuild",
-    "prebuild": "prebuild",
-    "prebuild-electron": "prebuild --strip --verbose",
     "rebuild": "node-gyp rebuild",
     "test": "jest test"
   },
-  "binary": {
-    "module_name": "node_printer",
-    "module_path": "lib",
-    "host": "https://github.com/casechek/node-printer/releases/download/",
-    "remote_path": "v{version}",
-    "package_name": "{module_name}-v{version}-{runtime}-v{node_abi}-{platform}-{arch}.tar.gz"
-  },
+  "files": [
+    "binding.gyp",
+    "lib/",
+    "src/",
+    "types/",
+    "printer.js"
+  ],
   "license": "MIT",
   "main": "./lib/printer",
   "dependencies": {
-    "nan": "^2.22.2",
-    "prebuild-install": "^7.1.1"
+    "nan": "^2.22.2"
   },
   "types": "types/index.d.ts"
 }
